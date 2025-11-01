@@ -23,11 +23,26 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
     adminOnly: true,
     async execute(interaction) {
+        // 检查是否在服务器中使用命令
+        if (!interaction.guild) {
+            return await interaction.reply({
+                content: '❌ 此命令只能在服务器中使用！',
+                ephemeral: true
+            });
+        }
+
         const subcommand = interaction.options.getSubcommand();
 
         switch (subcommand) {
             case 'banlist': {
                 try {
+                    if (!interaction.guild) {
+                        return await interaction.reply({
+                            content: '❌ 无法获取服务器信息！',
+                            ephemeral: true
+                        });
+                    }
+
                     const bans = await interaction.guild.bans.fetch();
                     
                     if (bans.size === 0) {
@@ -65,6 +80,13 @@ module.exports = {
                 const targetUser = interaction.options.getUser('用户');
                 
                 try {
+                    if (!interaction.guild) {
+                        return await interaction.reply({
+                            content: '❌ 无法获取服务器信息！',
+                            ephemeral: true
+                        });
+                    }
+
                     const member = await interaction.guild.members.fetch(targetUser.id).catch(() => null);
                     
                     const embed = new EmbedBuilder()
@@ -143,8 +165,21 @@ module.exports = {
 
             case 'serverinfo': {
                 try {
+                    if (!interaction.guild) {
+                        return await interaction.reply({
+                            content: '❌ 无法获取服务器信息！',
+                            ephemeral: true
+                        });
+                    }
+
                     const guild = interaction.guild;
-                    const owner = await guild.fetchOwner();
+                    let owner = null;
+                    
+                    try {
+                        owner = await guild.fetchOwner();
+                    } catch (ownerError) {
+                        console.error('获取服务器所有者失败:', ownerError);
+                    }
                     
                     const embed = new EmbedBuilder()
                         .setTitle(`🏰 服务器信息: ${guild.name}`)
@@ -158,7 +193,7 @@ module.exports = {
                             },
                             {
                                 name: '👑 服务器所有者',
-                                value: owner.user.tag,
+                                value: owner ? owner.user.tag : '无法获取',
                                 inline: true
                             },
                             {

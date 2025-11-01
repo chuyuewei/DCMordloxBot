@@ -29,12 +29,27 @@
      - ✅ MESSAGE CONTENT INTENT (如果需要读取消息内容)
    - 复制 `.env.example` 为 `.env` 并填写相应值
 
-3. **部署斜杠命令**
+3. **邀请机器人到服务器**
+   - 在 Discord Developer Portal 的 "OAuth2" > "URL Generator" 页面
+   - 选择 Scopes: `bot` 和 `applications.commands`
+   - 选择 Bot Permissions (根据需要):
+     - `Send Messages` - 发送消息
+     - `Use Slash Commands` - 使用斜杠命令
+     - `Ban Members` - 封禁成员 (如果使用ban命令)
+     - `Kick Members` - 踢出成员 (如果使用kick命令)
+     - `Manage Roles` - 管理角色
+     - `Manage Channels` - 管理频道
+     - `View Audit Log` - 查看审计日志
+     - `Create Instant Invite` - 创建邀请
+   - 复制生成的URL并在浏览器中打开
+   - 选择要添加机器人的服务器并授权
+
+4. **部署斜杠命令**
    ```bash
    node deploy-commands.js
    ```
 
-4. **启动机器人**
+5. **启动机器人**
    ```bash
    npm start
    ```
@@ -212,4 +227,125 @@ MIT License#
 ### 白名单配置
 - 确保 `config/whitelist.json` 文件存在且格式正确
 - 将你的用户ID添加到 `admins` 数组中
-- 使用 `/auth-info` 命令检查授权状态
+- 使用 `/auth-info` 命令检查授权状态#
+# 机器人邀请和部署
+
+### 快速邀请链接生成
+
+你可以使用以下URL模板快速生成邀请链接：
+
+```
+https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=PERMISSIONS&scope=bot%20applications.commands
+```
+
+**替换参数：**
+- `YOUR_CLIENT_ID` - 你的机器人客户端ID
+- `PERMISSIONS` - 权限数值 (见下方权限计算)
+
+### 推荐权限配置
+
+**基础功能 (权限值: 2147483648)**
+```
+https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=2147483648&scope=bot%20applications.commands
+```
+- 使用斜杠命令
+
+**完整管理功能 (权限值: 8590065664)**
+```
+https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=8590065664&scope=bot%20applications.commands
+```
+包含所有管理权限：
+- 发送消息
+- 使用斜杠命令  
+- 封禁成员
+- 踢出成员
+- 管理角色
+- 管理频道
+- 查看审计日志
+- 创建邀请
+
+### 手动配置步骤
+
+1. **访问 Discord Developer Portal**
+   - 打开 https://discord.com/developers/applications
+   - 选择你的应用程序
+
+2. **生成邀请链接**
+   - 点击左侧 "OAuth2" > "URL Generator"
+   - 在 "Scopes" 中选择：
+     - ☑️ `bot`
+     - ☑️ `applications.commands`
+
+3. **选择机器人权限**
+   
+   **必需权限：**
+   - ☑️ `Send Messages` - 发送回复消息
+   - ☑️ `Use Slash Commands` - 使用斜杠命令
+   
+   **管理功能权限 (可选)：**
+   - ☑️ `Ban Members` - 使用 `/ban` 和 `/unban` 命令
+   - ☑️ `Kick Members` - 使用 `/kick` 命令
+   - ☑️ `Manage Roles` - 角色相关操作
+   - ☑️ `Manage Channels` - 频道管理
+   - ☑️ `View Audit Log` - 查看操作日志
+   - ☑️ `Create Instant Invite` - 创建邀请链接
+   - ☑️ `Manage Guild` - 服务器管理 (创建服务器功能需要)
+
+4. **复制并使用邀请链接**
+   - 复制页面底部生成的URL
+   - 在浏览器中打开链接
+   - 选择要添加机器人的服务器
+   - 点击 "授权" 完成添加
+
+### 首次设置
+
+添加机器人到服务器后：
+
+1. **配置白名单**
+   ```bash
+   # 编辑 config/whitelist.json
+   # 将你的用户ID添加到 admins 数组
+   ```
+
+2. **部署命令**
+   ```bash
+   node deploy-commands.js
+   ```
+
+3. **启动机器人**
+   ```bash
+   npm start
+   ```
+
+4. **测试功能**
+   - 使用 `/ping` 测试基础功能
+   - 使用 `/auth-info` 检查权限状态
+   - 使用 `/whitelist list` 查看白名单 (管理员)
+
+### 获取用户ID
+
+要将自己添加到管理员白名单：
+
+1. **启用开发者模式**
+   - Discord设置 > 高级 > 开发者模式 ✅
+
+2. **获取用户ID**
+   - 右键点击你的用户名/头像
+   - 选择 "复制ID"
+   - 将ID添加到 `config/whitelist.json` 的 `admins` 数组中
+
+### 权限故障排除
+
+**机器人无响应：**
+- 检查机器人是否在线
+- 确认已部署斜杠命令
+- 检查机器人是否有 "发送消息" 权限
+
+**命令执行失败：**
+- 确认你在白名单中
+- 检查机器人是否有相应的Discord权限
+- 查看控制台错误日志
+
+**权限不足错误：**
+- 重新邀请机器人并授予更多权限
+- 或在服务器设置中手动调整机器人角色权限

@@ -15,6 +15,14 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
     adminOnly: true,
     async execute(interaction) {
+        // 检查是否在服务器中使用命令
+        if (!interaction.guild) {
+            return await interaction.reply({
+                content: '❌ 此命令只能在服务器中使用！',
+                ephemeral: true
+            });
+        }
+
         const targetUser = interaction.options.getUser('用户');
         const reason = interaction.options.getString('原因') || '未提供原因';
 

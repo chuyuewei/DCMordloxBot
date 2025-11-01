@@ -73,19 +73,6 @@ module.exports = {
                         type: ChannelType.GuildVoice,
                         userLimit: 10
                     }
-                ],
-                roles: [
-                    {
-                        name: '成员',
-                        color: 0x3498db,
-                        permissions: [
-                            PermissionFlagsBits.ViewChannel,
-                            PermissionFlagsBits.SendMessages,
-                            PermissionFlagsBits.ReadMessageHistory,
-                            PermissionFlagsBits.Connect,
-                            PermissionFlagsBits.Speak
-                        ]
-                    }
                 ]
             };
 
@@ -126,6 +113,24 @@ module.exports = {
                     } catch (error) {
                         console.log('设置服务器描述失败:', error.message);
                     }
+                }
+
+                // 创建成员角色
+                try {
+                    await newGuild.roles.create({
+                        name: '成员',
+                        color: 0x3498db,
+                        permissions: [
+                            PermissionFlagsBits.ViewChannel,
+                            PermissionFlagsBits.SendMessages,
+                            PermissionFlagsBits.ReadMessageHistory,
+                            PermissionFlagsBits.Connect,
+                            PermissionFlagsBits.Speak
+                        ],
+                        reason: '自动创建的成员角色'
+                    });
+                } catch (roleError) {
+                    console.log('创建成员角色失败:', roleError.message);
                 }
 
                 // 在欢迎频道发送欢迎消息
