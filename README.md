@@ -63,7 +63,9 @@ discord-bot/
 │   ├── unban.js       # 解封用户命令
 │   ├── moderation.js  # 管理工具命令
 │   ├── whitelist.js   # 白名单管理命令
-│   └── auth-info.js   # 授权信息查看
+│   ├── auth-info.js   # 授权信息查看
+│   ├── status.js      # 机器人状态管理
+│   └── createserver.js # 创建服务器命令
 ├── events/            # 事件处理文件
 │   └── ready.js
 ├── index.js           # 主入口文件
@@ -118,6 +120,24 @@ MIT License#
 - `/moderation userinfo` - 查看用户详细信息
 - `/moderation serverinfo` - 查看服务器信息
 
+### 机器人状态管理
+- `/status set` - 设置机器人活动状态
+  - 类型: 正在玩/正在听/正在看/正在竞争/正在直播
+  - 内容: 活动内容
+  - 链接: 直播链接 (仅直播类型需要)
+- `/status online` - 设置为在线状态 🟢
+- `/status idle` - 设置为离开状态 🟡
+- `/status dnd` - 设置为请勿打扰状态 🔴
+- `/status invisible` - 设置为隐身状态 ⚫
+- `/status clear` - 清除活动状态
+- `/status info` - 查看当前状态
+
+### 服务器创建
+- `/createserver` - 创建新的Discord服务器
+  - name: 服务器名称 (必需，2-100字符)
+  - description: 服务器描述 (可选，最多120字符)
+  - icon: 服务器图标 (可选，支持PNG/JPG/GIF/WebP，最大8MB)
+
 ### 权限要求
 - 所有管理命令都需要机器人白名单管理员权限
 - 机器人需要相应的Discord权限 (封禁成员、踢出成员等)
@@ -128,3 +148,37 @@ MIT License#
 - 防止对服务器所有者执行操作
 - 详细的错误处理和日志记录
 - 操作原因记录到Discord审计日志
+## 服务器创建
+功能
+
+### 功能说明
+`/createserver` 命令允许管理员通过机器人创建新的Discord服务器，并自动生成邀请链接。
+
+### 创建的服务器包含：
+- **默认频道:**
+  - 📝 欢迎 - 文字频道，包含欢迎信息
+  - 💬 一般聊天 - 日常聊天频道
+  - 🔊 语音聊天 - 语音频道 (最多10人)
+
+- **默认角色:**
+  - 👥 成员 - 基础权限角色
+
+- **自动功能:**
+  - 生成一次性邀请链接
+  - 发送欢迎消息到欢迎频道
+  - 设置服务器描述 (如果提供)
+  - 设置服务器图标 (如果提供)
+
+### 使用示例
+```
+/createserver name:我的服务器
+/createserver name:游戏公会 description:专门用于游戏的服务器
+/createserver name:学习小组 description:一起学习编程 icon:[上传图片]
+```
+
+### 注意事项
+- 仅白名单管理员可使用
+- 机器人有服务器数量限制 (通常为100个)
+- 邀请链接只能使用一次，请妥善保管
+- 服务器名称不能包含特殊字符
+- 图标文件大小不能超过8MB
