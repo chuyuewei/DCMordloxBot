@@ -1,15 +1,14 @@
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
+const authManager = require('./utils/auth');
 require('dotenv').config();
 
 // 创建客户端实例
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildMembers
+        GatewayIntentBits.GuildMessages
     ]
 });
 
@@ -67,8 +66,29 @@ client.on('interactionCreate', async interaction => {
         return;
     }
 
+    // 身份验证检查 (管理命令除外)
+    if (!command.adminOnly && !authManager.isAuthorized(interaction)) {
+        await interaction.reply({
+            content: '❌ 你没有权限使用此机器人。请联系管理员将你添加到白名单。',
+            ephemeral: true
+        });
+        console.log(`🚫 未授权用户尝试使用命令: ${interaction.user.tag} (${interaction.user.id}) - ${interaction.commandName}`);
+        return;
+    }
+
+    // 管理员命令检查
+    if (command.adminOnly && !authManager.isAdmin(interaction.user.id)) {
+        await interaction.reply({
+            content: '❌ 此命令仅限管理员使用。',
+            ephemeral: true
+        });
+        console.log(`🚫 非管理员尝试使用管理命令: ${interaction.user.tag} (${interaction.user.id}) - ${interaction.commandName}`);
+        return;
+    }
+
     try {
         await command.execute(interaction);
+        console.log(`✅ 命令执行: ${interaction.user.tag} (${interaction.user.id}) - ${interaction.commandName}`);
     } catch (error) {
         console.error('执行命令时出错:', error);
         

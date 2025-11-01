@@ -20,11 +20,14 @@
    npm install
    ```
 
-2. **配置环境变量**
-   - 复制 `.env.example` 为 `.env`
+2. **配置Discord应用程序**
    - 在 [Discord Developer Portal](https://discord.com/developers/applications) 创建应用程序
-   - 获取 Bot Token 和 Client ID
-   - 填写 `.env` 文件中的相应值
+   - 在 "Bot" 页面创建机器人并获取 Token
+   - 在 "OAuth2" > "General" 页面获取 Client ID
+   - **重要**: 在 "Bot" 页面的 "Privileged Gateway Intents" 部分，确保以下设置：
+     - ✅ SERVER MEMBERS INTENT (如果需要成员管理功能)
+     - ✅ MESSAGE CONTENT INTENT (如果需要读取消息内容)
+   - 复制 `.env.example` 为 `.env` 并填写相应值
 
 3. **部署斜杠命令**
    ```bash
@@ -182,3 +185,31 @@ MIT License#
 - 邀请链接只能使用一次，请妥善保管
 - 服务器名称不能包含特殊字符
 - 图标文件大小不能超过8MB
+##
+ 故障排除
+
+### "Used disallowed intents" 错误
+如果遇到此错误，请检查：
+
+1. **Discord Developer Portal 设置**
+   - 进入你的应用程序页面
+   - 点击 "Bot" 标签
+   - 向下滚动到 "Privileged Gateway Intents"
+   - 根据需要启用以下意图：
+     - `SERVER MEMBERS INTENT` - 用于成员管理功能
+     - `MESSAGE CONTENT INTENT` - 用于读取消息内容
+
+2. **当前配置**
+   - 机器人默认使用基础意图 (`Guilds`, `GuildMessages`)
+   - 如需更多功能，请在 Discord Developer Portal 启用相应意图
+   - 然后在 `index.js` 中添加对应的 `GatewayIntentBits`
+
+### 权限问题
+- 确保机器人在服务器中有足够的权限
+- 管理命令需要相应的Discord权限 (如封禁成员、踢出成员等)
+- 检查机器人角色的权限设置
+
+### 白名单配置
+- 确保 `config/whitelist.json` 文件存在且格式正确
+- 将你的用户ID添加到 `admins` 数组中
+- 使用 `/auth-info` 命令检查授权状态
